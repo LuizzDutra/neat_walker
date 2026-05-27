@@ -1,12 +1,11 @@
 import neat
 from pathlib import Path
 
-SEED = 81
+SEEDS = [81, 42, 67]
 GENERATIONS = 50
 CONFIG = 'config-neat-mod'
 
-AVERAGED = False
-RUNS = 3
+AVERAGED = True
 
 def get_config():
     return neat.Config(neat.DefaultGenome, neat.DefaultReproduction,

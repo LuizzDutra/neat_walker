@@ -4,7 +4,7 @@ from time import time
 import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
-from src.training.configs import SEED, GENERATIONS, get_config, AVERAGED, RUNS
+from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 
@@ -18,12 +18,11 @@ def calc_fitness(result: SimResult):
 
 def eval_genome(genome, config):
     net = RecurrentNetwork.create(genome, config)
-    fitness: float = 0
+    fitness_list: list[float] = [0.0]*len(SEEDS)
     if AVERAGED:
-        total_fitness = 0.0
-        for _ in range(RUNS):
-            total_fitness += calc_fitness(run_episode(net))
-        fitness = total_fitness/RUNS
+        for i, seed in enumerate(SEEDS):
+            fitness_list[i] = calc_fitness(run_episode(net, seed=seed))
+        fitness = min(fitness_list)
 
     else:
         fitness = calc_fitness(run_episode(net))
@@ -36,7 +35,7 @@ def eval_genomes(genomes, config):
 
 if __name__ == "__main__":
     
-    random.seed(SEED)
+    random.seed(SEEDS[0])
 
     # Load configuration
     config = get_config()
@@ -49,13 +48,13 @@ if __name__ == "__main__":
     with neat.ParallelEvaluator(
             multiprocessing.cpu_count(), 
             eval_genome, 
-            seed=SEED
+            seed=SEEDS[0]
             ) as evaluator:
         #winner = p.run(eval_genomes, 300)
         winner = p.run(evaluator.evaluate, GENERATIONS)
 
     print('\nBest genome:\n{!s}'.format(winner))
 
-    save_net(winner, f"best_winner_{GENERATIONS}_{SEED}_{AVERAGED}_{int(time())}.pkl")
+    save_net(winner, f"best_winner_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{int(time())}.pkl")
 
     create_run_net(winner, config)
