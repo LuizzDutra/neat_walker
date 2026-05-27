@@ -23,11 +23,16 @@ def run_episode(net, render=False) -> float:
         action = net.activate(observation)
 
         observation, reward, terminated, truncated, info = env.step(action)
+        episode_over = terminated or truncated
         reward = float(reward)
+        if reward == -100.0:
+            #Dampens fall penalty
+            reward = -50.0
 
         t_reward += reward
-
-        if reward < 0.01 and reward > -0.01:
+        
+        #X speed
+        if observation[2] < 0.1:
             steps_stuck += 1
         else:
             steps_stuck = 0
@@ -39,10 +44,8 @@ def run_episode(net, render=False) -> float:
         if render:
             print(f"\r {steps}: {t_reward}                   ", end="")
 
-        episode_over = terminated or truncated
         steps += 1
 
-    env.close()
     return t_reward
 
 
