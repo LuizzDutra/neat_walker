@@ -4,13 +4,21 @@ from time import time
 import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
-from src.training.configs import SEED, GENERATIONS, get_config
+from src.training.configs import SEED, GENERATIONS, get_config, AVERAGED, RUNS
 from src.results.manager import save_net
 
 def eval_genome(genome, config):
     net = RecurrentNetwork.create(genome, config)
-    fitness = run_episode(net)
-    #fitness = max(0.001, fitness)
+    
+    if AVERAGED:
+        total_fitness = 0.0
+        for _ in range(RUNS):
+            total_fitness += run_episode(net)
+        fitness = total_fitness/RUNS
+
+    else:
+        fitness = run_episode(net)
+
     return fitness
 
 def eval_genomes(genomes, config):
@@ -39,6 +47,6 @@ if __name__ == "__main__":
 
     print('\nBest genome:\n{!s}'.format(winner))
 
-    save_net(winner, f"best_winner_{int(time())}.pkl")
+    save_net(winner, f"best_winner_{GENERATIONS}_{SEED}_{int(time())}.pkl")
 
     create_run_net(winner, config)
