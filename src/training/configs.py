@@ -2,10 +2,10 @@ import neat
 from pathlib import Path
 
 SEED = 81
-GENERATIONS = 80
+GENERATIONS = 50
 CONFIG = 'config-neat-mod'
 
-AVERAGED = True
+AVERAGED = False
 RUNS = 3
 
 def get_config():

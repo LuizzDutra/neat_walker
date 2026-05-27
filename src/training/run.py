@@ -6,18 +6,27 @@ import random
 from src.simulation.simulate import run_episode, create_run_net
 from src.training.configs import SEED, GENERATIONS, get_config, AVERAGED, RUNS
 from src.results.manager import save_net
+from src.simulation.model import SimResult
+
+def calc_fitness(result: SimResult):
+    fitness = result.reward
+    if result.has_fallen:
+        fitness -= 100
+    if result.has_stopped:
+        fitness -= 100
+    return fitness
 
 def eval_genome(genome, config):
     net = RecurrentNetwork.create(genome, config)
-    
+    fitness: float = 0
     if AVERAGED:
         total_fitness = 0.0
         for _ in range(RUNS):
-            total_fitness += run_episode(net)
+            total_fitness += calc_fitness(run_episode(net))
         fitness = total_fitness/RUNS
 
     else:
-        fitness = run_episode(net)
+        fitness = calc_fitness(run_episode(net))
 
     return fitness
 
@@ -47,6 +56,6 @@ if __name__ == "__main__":
 
     print('\nBest genome:\n{!s}'.format(winner))
 
-    save_net(winner, f"best_winner_{GENERATIONS}_{SEED}_{int(time())}.pkl")
+    save_net(winner, f"best_winner_{GENERATIONS}_{SEED}_{AVERAGED}_{int(time())}.pkl")
 
     create_run_net(winner, config)

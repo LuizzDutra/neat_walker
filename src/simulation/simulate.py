@@ -1,11 +1,12 @@
 import gymnasium as gym
 from src.training.configs import SEED
 from neat.nn import RecurrentNetwork
+from src.simulation.model import SimResult
 
 env_default = gym.make("BipedalWalker-v3")
 env_render = gym.make("BipedalWalker-v3", render_mode="human")
 
-def run_episode(net, render=False) -> float:
+def run_episode(net, render=False) -> SimResult:
     if render:
         env = env_render
     else:
@@ -14,9 +15,11 @@ def run_episode(net, render=False) -> float:
     env.reset()
     observation, info = env.reset()
     episode_over: bool = False
-    t_reward: float = 0
+    result = SimResult(reward=0, 
+                       steps=0, 
+                       has_fallen=False, 
+                       has_stopped=False)
 
-    steps = 0
     steps_stuck = 0
     while not episode_over:
 
@@ -26,10 +29,10 @@ def run_episode(net, render=False) -> float:
         episode_over = terminated or truncated
         reward = float(reward)
         if reward == -100.0:
-            #Dampens fall penalty
-            reward = -50.0
+            #Has fallen
+            result.has_fallen = True
 
-        t_reward += reward
+        result.reward += reward
         
         #X speed
         if observation[2] < 0.1:
@@ -38,15 +41,15 @@ def run_episode(net, render=False) -> float:
             steps_stuck = 0
 
         if steps_stuck > 100:
-            t_reward -= 100
+            result.has_stopped = True
             episode_over = True
 
         if render:
-            print(f"\r {steps}: {t_reward}                   ", end="")
+            print(f"\r {result.steps}: {result.reward}                   ", end="")
 
-        steps += 1
+        result.steps += 1
 
-    return t_reward
+    return result
 
 
 def create_run_net(net, config):
