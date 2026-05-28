@@ -4,9 +4,10 @@ from time import time
 import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
-from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED
+from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE
 from src.results.manager import save_net
 from src.simulation.model import SimResult
+from src.dynamic.threshold import DynamicThresholdReporter
 
 def calc_fitness(result: SimResult):
     fitness = result.reward
@@ -43,6 +44,14 @@ if __name__ == "__main__":
     # Create population
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
+    
+    if DYN_THRESHOLD:
+        p.add_reporter(
+                DynamicThresholdReporter(N_SPECIES, 
+                                         ADJUST_RATE, 
+                                         MIN_THRES, 
+                                         MAX_THRES)
+                )
 
 
     with neat.ParallelEvaluator(
