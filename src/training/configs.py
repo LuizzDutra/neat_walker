@@ -2,10 +2,10 @@ import neat
 from pathlib import Path
 
 SEEDS = [81, 42, 67]
-GENERATIONS = 100
+GENERATIONS = 150
 CONFIG = 'config-neat-mod'
 
-AVERAGED = False
+AVERAGED = True
 DYN_THRESHOLD = True
 N_SPECIES = 15
 ADJUST_RATE = 0.1

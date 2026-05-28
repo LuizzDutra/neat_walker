@@ -37,7 +37,7 @@ enabled_rate_to_false_add = 0.0
 feed_forward            = False
 initial_connection      = partial 0.2
 
-node_add_prob           = 0.1
+node_add_prob           = 0.2
 node_delete_prob        = 0.005
 
 num_hidden              = 0
@@ -58,7 +58,7 @@ weight_init_stdev       = 0.2
 weight_init_type        = gaussian
 weight_max_value        = 10
 weight_min_value        = -10
-weight_mutate_power     = 0.2
+weight_mutate_power     = 0.4
 weight_mutate_rate      = 0.8
 weight_replace_rate     = 0.1
 
@@ -70,10 +70,10 @@ compatibility_threshold = 2.0
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation       = 25
-species_elitism      = 4
+max_stagnation       = 15
+species_elitism      = 2
 
 [DefaultReproduction]
 elitism            = 2
 survival_threshold = 0.2
-min_species_size   = 5
+min_species_size   = 2

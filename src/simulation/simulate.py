@@ -14,11 +14,8 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     env.reset(seed=seed)
     observation, info = env.reset()
     episode_over: bool = False
-    result = SimResult(reward=0, 
-                       steps=0, 
-                       has_fallen=False, 
-                       has_stopped=False)
-
+    result = SimResult()
+    
     steps_stuck = 0
     while not episode_over:
 
@@ -26,12 +23,26 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
 
         observation, reward, terminated, truncated, info = env.step(action)
         episode_over = terminated or truncated
+
+        hull_angle = observation[0]
+        hip_1_angle = observation[4]
+        hip_2_angle = observation[9]
+
+        if abs(hip_1_angle) > 1.0 or abs(hip_2_angle) > 1.0:
+            result.reward -= 0.2  # Heavy penalty for splaying legs
+            
+        # Penalize the network if the main body tilts too far forward or backward.
+        if abs(hull_angle) > 0.5:
+            result.reward -= 0.1
+            
+
         reward = float(reward)
         if reward == -100.0:
             #Has fallen
             result.has_fallen = True
 
         result.reward += reward
+        result.canon_reward += reward
         
         #X speed
         if observation[2] < 0.1:
@@ -44,7 +55,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
             episode_over = True
 
         if render:
-            print(f"\r {result.steps}: {result.reward}                   ", end="")
+            print(f"\r {result.steps}: {result.canon_reward}                   ", end="")
 
         result.steps += 1
 
