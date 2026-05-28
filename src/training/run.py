@@ -4,31 +4,34 @@ from time import time
 import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
-from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE
+from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE, CHECKPOINT
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 from src.dynamic.threshold import DynamicThresholdReporter
 
 def calc_fitness(result: SimResult):
     fitness = result.reward
+
     if result.has_fallen:
-        fitness -= 100
+        early_fall_factor = max(0.0, 1.0 - result.steps / 800.0)
+        fitness -= 30.0 * (0.5 + early_fall_factor)
+
     if result.has_stopped:
-        fitness -= 100
+        fitness -= 60.0 * max(0.1, 1.0 - result.steps / 1600.0)
+
     return fitness
 
 def eval_genome(genome, config):
     net = RecurrentNetwork.create(genome, config)
-    fitness_list: list[float] = [0.0]*len(SEEDS)
     if AVERAGED:
-        for i, seed in enumerate(SEEDS):
-            fitness_list[i] = calc_fitness(run_episode(net, seed=seed))
-        fitness = min(fitness_list)
+        fitness_list = [calc_fitness(run_episode(net, seed=seed))
+                        for seed in SEEDS]
 
+        fitness = sum(fitness_list) / len(fitness_list)
     else:
         fitness = calc_fitness(run_episode(net))
 
-    return fitness
+    return float(fitness)
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
@@ -52,6 +55,18 @@ if __name__ == "__main__":
                                          MIN_THRES, 
                                          MAX_THRES)
                 )
+    
+    
+    start_time = int(time())
+
+    #Checkpoint  
+    p.add_reporter(neat.Checkpointer(
+        generation_interval=CHECKPOINT,
+        time_interval_seconds=None,
+        filename_prefix=f'{start_time}-checkpoint-'
+    ))
+    # ------------------------------
+        
 
 
     with neat.ParallelEvaluator(
@@ -64,6 +79,6 @@ if __name__ == "__main__":
 
     print('\nBest genome:\n{!s}'.format(winner))
 
-    save_net(winner, f"best_winner_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{int(time())}.pkl")
+    save_net(winner, f"best_winner_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}.pkl")
 
     create_run_net(winner, config)

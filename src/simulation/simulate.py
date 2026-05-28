@@ -17,6 +17,8 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     result = SimResult()
     
     steps_stuck = 0
+    total_splay_penalty = 0
+    total_tilt_penalty = 0
     while not episode_over:
 
         action = net.activate(observation)
@@ -28,17 +30,17 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
         hip_1_angle = observation[4]
         hip_2_angle = observation[9]
 
-        if abs(hip_1_angle) > 1.0 or abs(hip_2_angle) > 1.0:
-            result.reward -= 0.2  # Heavy penalty for splaying legs
-            
-        # Penalize the network if the main body tilts too far forward or backward.
-        if abs(hull_angle) > 0.5:
-            result.reward -= 0.1
-            
+
+        splay_1 = max(0.0, abs(hip_1_angle) - 1.0)
+        splay_2 = max(0.0, abs(hip_2_angle) - 1.0)
+        total_splay_penalty += (splay_1 + splay_2) * 0.1
+
+        tilt = max(0.0, abs(hull_angle) - 0.5)
+        total_tilt_penalty += tilt * 0.1        
 
         reward = float(reward)
         if reward == -100.0:
-            #Has fallen
+            reward = 0
             result.has_fallen = True
 
         result.reward += reward
@@ -58,6 +60,9 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
             print(f"\r {result.steps}: {result.canon_reward}                   ", end="")
 
         result.steps += 1
+
+    result.reward -= total_splay_penalty
+    result.reward -= total_tilt_penalty
 
     return result
 
