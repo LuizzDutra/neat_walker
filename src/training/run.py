@@ -8,6 +8,8 @@ from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_T
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 from src.dynamic.threshold import DynamicThresholdReporter
+import numpy as np
+
 
 def calc_fitness(result: SimResult):
     fitness = result.reward
@@ -23,6 +25,8 @@ def calc_fitness(result: SimResult):
 
 def eval_genome(genome, config):
     net = RecurrentNetwork.create(genome, config)
+    random.seed(SEEDS[0] + genome.key)
+    np.random.seed(SEEDS[0] + genome.key)
     if AVERAGED:
         fitness_list = [calc_fitness(run_episode(net, seed=seed))
                         for seed in SEEDS]
@@ -40,6 +44,7 @@ def eval_genomes(genomes, config):
 if __name__ == "__main__":
     
     random.seed(SEEDS[0])
+    np.random.seed(SEEDS[0])
 
     # Load configuration
     config = get_config()

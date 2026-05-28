@@ -11,8 +11,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     else:
         env = env_default
 
-    env.reset(seed=seed)
-    observation, info = env.reset()
+    observation, info = env.reset(seed=seed)
     episode_over: bool = False
     result = SimResult()
     
