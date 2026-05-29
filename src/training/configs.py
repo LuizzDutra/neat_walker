@@ -1,7 +1,8 @@
 import neat
 from pathlib import Path
 
-SEEDS = [81, 42, 67]
+RAND_SEED = 81
+SEEDS = [1692, 214, 67]
 GENERATIONS = 200
 CHECKPOINT = 50
 CONFIG = 'config-neat-mod'

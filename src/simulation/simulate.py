@@ -17,7 +17,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     total_splay_penalty = 0
     total_tilt_penalty = 0
     total_knee_penalty = 0
-    knee_penalty_thres = 0
+    knee_penalty_thres = 0.4 # < 0 = folded; > 0 streched-ish
 
     while not episode_over:
 
@@ -35,8 +35,8 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
         leg_1_contact = observation[8]
         leg_2_contact = observation[13]
 
-        knee_1_pen = max(0.0, -knee_1_angle - knee_penalty_thres) * leg_1_contact
-        knee_2_pen = max(0.0, -knee_2_angle - knee_penalty_thres) * leg_2_contact
+        knee_1_pen = max(0.0, -knee_1_angle + knee_penalty_thres) * leg_1_contact
+        knee_2_pen = max(0.0, -knee_2_angle + knee_penalty_thres) * leg_2_contact
         knee_penalty = (knee_1_pen + knee_2_pen) * 0.3
         total_knee_penalty += knee_penalty
 
@@ -67,7 +67,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
             episode_over = True
 
         if render:
-            print(f"\r Canon reward: {result.steps}: {result.canon_reward:.3f}                 ", end="")
+            print(f"\r Canon reward: {result.steps}: {result.canon_reward:.3f} {total_knee_penalty}                 ", end="")
 
         result.steps += 1
 

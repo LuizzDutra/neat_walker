@@ -4,14 +4,14 @@ from time import time
 import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
-from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE, CHECKPOINT
+from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE, CHECKPOINT, RAND_SEED
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 from src.dynamic.threshold import DynamicThresholdReporter
 import numpy as np
 
-random.seed(SEEDS[0])
-np.random.seed(SEEDS[0])
+random.seed(RAND_SEED)
+np.random.seed(RAND_SEED)
 
 
 def calc_fitness(result: SimResult):
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     with neat.ParallelEvaluator(
             multiprocessing.cpu_count(), 
             eval_genome, 
-            seed=SEEDS[0]
+            seed=RAND_SEED
             ) as evaluator:
         #winner = p.run(eval_genomes, 300)
         winner = p.run(evaluator.evaluate, GENERATIONS)
