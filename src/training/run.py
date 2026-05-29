@@ -18,11 +18,13 @@ def calc_fitness(result: SimResult):
     fitness = result.reward
 
     if result.has_fallen:
-        early_fall_factor = max(0.0, 1.0 - result.steps / 800.0)
-        fitness -= 30.0 * (0.5 + early_fall_factor)
+        #early_fall_factor = max(0.0, 1.0 - result.steps / 800.0)
+        #fitness -= 30.0 * (0.5 + early_fall_factor)
+        fitness -= 30
 
     if result.has_stopped:
-        fitness -= 60.0 * max(0.1, 1.0 - result.steps / 1600.0)
+        #fitness -= 60.0 * max(0.1, 1.0 - result.steps / 1600.0)
+        fitness -= 60
 
     return fitness
 
