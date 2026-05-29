@@ -32,10 +32,10 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
 
         splay_1 = max(0.0, abs(hip_1_angle) - 1.0)
         splay_2 = max(0.0, abs(hip_2_angle) - 1.0)
-        total_splay_penalty += (splay_1 + splay_2) * 0.1
+        total_splay_penalty += (splay_1 + splay_2) * 0.2
 
-        tilt = max(0.0, abs(hull_angle) - 0.5)
-        total_tilt_penalty += tilt * 0.1        
+        tilt = max(0.0, abs(hull_angle) - 0.75)
+        total_tilt_penalty += tilt * 0.1
 
         reward = float(reward)
         if reward == -100.0:
@@ -62,7 +62,9 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
 
     result.reward -= total_splay_penalty
     result.reward -= total_tilt_penalty
-
+    if render:
+        print()
+        print(result.reward)
     return result
 
 

@@ -2,16 +2,16 @@ import neat
 from pathlib import Path
 
 SEEDS = [81, 42, 67]
-GENERATIONS = 50
+GENERATIONS = 200
 CHECKPOINT = 50
 CONFIG = 'config-neat-mod'
 
 AVERAGED = True
 DYN_THRESHOLD = True
 N_SPECIES = 15
-ADJUST_RATE = 0.02
-MIN_THRES = 0.8
-MAX_THRES = 2.5
+ADJUST_RATE = 0.05
+MIN_THRES = 1.5
+MAX_THRES = 3.0
 
 def get_config():
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
