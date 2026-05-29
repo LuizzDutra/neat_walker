@@ -56,6 +56,9 @@ if __name__ == "__main__":
     # Create population
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
+
+    pop_size = len(p.population)
+    print(f"Population size: {pop_size}")
     
     if DYN_THRESHOLD:
         p.add_reporter(
@@ -72,9 +75,8 @@ if __name__ == "__main__":
     p.add_reporter(neat.Checkpointer(
         generation_interval=CHECKPOINT,
         time_interval_seconds=None,
-        filename_prefix=f'{start_time}-checkpoint-'
+        filename_prefix=f'{pop_size}-{start_time}-checkpoint-'
     ))
-    # ------------------------------
         
 
 
@@ -88,6 +90,6 @@ if __name__ == "__main__":
 
     print('\nBest genome:\n{!s}'.format(winner))
 
-    save_net(winner, f"best_winner_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}.pkl")
+    save_net(winner, f"best_winner_{pop_size}_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}.pkl")
 
     create_run_net(winner, config)

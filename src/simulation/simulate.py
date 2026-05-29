@@ -2,14 +2,12 @@ import gymnasium as gym
 from neat.nn import RecurrentNetwork
 from src.simulation.model import SimResult
 
-env_default = gym.make("BipedalWalker-v3")
-env_render = gym.make("BipedalWalker-v3", render_mode="human")
 
 def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     if render:
-        env = env_render
+        env = gym.make("BipedalWalker-v3", render_mode="human")
     else:
-        env = env_default
+        env = gym.make("BipedalWalker-v3")
 
     observation, info = env.reset(seed=seed)
     episode_over: bool = False
@@ -65,6 +63,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     if render:
         print()
         print(result.reward)
+    env.close()
     return result
 
 
