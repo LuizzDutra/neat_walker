@@ -14,10 +14,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     result = SimResult()
     
     steps_stuck = 0
-    total_splay_penalty = 0
-    total_tilt_penalty = 0
-    total_knee_penalty = 0
-    knee_penalty_thres = 0.4 # < 0 = folded; > 0 streched-ish
+    knee_penalty_thres = 0.6 # < 0 = folded; > 0 streched-ish
 
     while not episode_over:
 
@@ -35,18 +32,26 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
         leg_1_contact = observation[8]
         leg_2_contact = observation[13]
 
-        knee_1_pen = max(0.0, -knee_1_angle + knee_penalty_thres) * leg_1_contact
-        knee_2_pen = max(0.0, -knee_2_angle + knee_penalty_thres) * leg_2_contact
-        knee_penalty = (knee_1_pen + knee_2_pen) * 0.3
-        total_knee_penalty += knee_penalty
+        knee_1_pen = (
+                max(0.0, -knee_1_angle + knee_penalty_thres) * 
+                leg_1_contact *
+                int(hip_1_angle < -0.3)
+                )
+        knee_2_pen = (
+                max(0.0, -knee_2_angle + knee_penalty_thres) * 
+                leg_2_contact *
+                int(hip_2_angle < -0.3)
+                )
+        knee_penalty = (knee_1_pen + knee_2_pen)
+        result.total_knee += knee_penalty
 
 
         splay_1 = max(0.0, abs(hip_1_angle) - 1.0)
         splay_2 = max(0.0, abs(hip_2_angle) - 1.0)
-        total_splay_penalty += (splay_1 + splay_2) * 0.2
+        result.total_splay += (splay_1 + splay_2)
 
-        tilt = max(0.0, abs(hull_angle) - 0.5)
-        total_tilt_penalty += tilt * 0.2
+        tilt = max(0.0, abs(hull_angle) - 0.4)
+        result.total_tilt += tilt
 
         reward = float(reward)
         if reward == -100.0:
@@ -67,20 +72,17 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
             episode_over = True
 
         if render:
-            print(f"\r Canon reward: {result.steps}: {result.canon_reward:.3f} {total_knee_penalty}                 ", end="")
+            print(f"\rSteps: {result.steps}: Canon reward: {result.canon_reward:.3f} {result.total_knee}  ", end="")
 
         result.steps += 1
 
-    result.reward -= total_splay_penalty
-    result.reward -= total_tilt_penalty
-    result.reward -= total_knee_penalty
     if render:
         print()
         print("Final reward: ", result.reward)
         print("Penalties")
-        print("Knee: ", total_knee_penalty)
-        print("Splay: ", total_splay_penalty)
-        print("Tilt: ", total_tilt_penalty)
+        print("Knee: ", result.total_knee)
+        print("Splay: ", result.total_splay)
+        print("Tilt: ", result.total_tilt)
     env.close()
     return result
 

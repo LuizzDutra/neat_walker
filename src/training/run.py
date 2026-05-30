@@ -4,10 +4,11 @@ from time import time
 import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
-from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE, CHECKPOINT, RAND_SEED
+from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE, CHECKPOINT, RAND_SEED, Penalties
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 from src.dynamic.threshold import DynamicThresholdReporter
+from src.dynamic.generation import ParallelGenerationTracker
 from src.logging.logger import Tee
 import numpy as np
 import sys
@@ -16,34 +17,43 @@ random.seed(RAND_SEED)
 np.random.seed(RAND_SEED)
 
 
-def calc_fitness(result: SimResult):
+def calc_fitness(result: SimResult, gen):
     fitness = result.reward
+    penalties = 0.0
+    penalties += result.total_knee * Penalties.knee_coef
+    penalties += result.total_splay * Penalties.splay_coef
+    penalties += result.total_tilt * Penalties.tilt_coef
+    
+
+    fitness -= penalties * min(2.0, gen/Penalties.min_gen)
+    
 
     if result.has_fallen:
-        early_fall_factor = max(0.0, 1.0 - result.steps / 1600.0)
-        fitness -= 30.0 * (0.5 + early_fall_factor)
+        early_fall_factor = max(0.5, 1.0 - result.steps / 1600.0)
+        fitness -= 80.0 * early_fall_factor
         #fitness -= 30
 
     if result.has_stopped:
-        fitness -= 60.0 * max(0.1, 1.0 - result.steps / 1600.0)
+        fitness -= 100.0 * max(0.5, 1.0 - result.steps / 1600.0)
         #fitness -= 60
 
     return fitness
 
 def eval_genome(genome, config):
     net = RecurrentNetwork.create(genome, config)
+    gen = config.current_generation
     if AVERAGED:
         fitness_list = []
         for seed in SEEDS:
             net.reset()
             fitness_list.append(
-                    calc_fitness(run_episode(net, seed=seed))
+                    calc_fitness(run_episode(net, seed=seed), gen)
                     )
 
         fitness = sum(fitness_list) / len(fitness_list)
     else:
         net.reset()
-        fitness = calc_fitness(run_episode(net))
+        fitness = calc_fitness(run_episode(net), gen)
 
     return float(fitness)
 
@@ -62,11 +72,10 @@ if __name__ == "__main__":
 
     start_time = int(time())
     pop_size = len(p.population)
-    run_string = "best_winner_{pop_size}_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}"
+    run_string = f"best_winner_{pop_size}_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}"
     
     log_file = open(run_string+".log", "w")
     sys.stdout = Tee(sys.stdout, log_file)
-    sys.stderr = Tee(sys.stderr, log_file)
 
 
     if DYN_THRESHOLD:
@@ -90,13 +99,15 @@ if __name__ == "__main__":
             eval_genome, 
             seed=RAND_SEED
             ) as evaluator:
-        #winner = p.run(eval_genomes, 300)
-        winner = p.run(evaluator.evaluate, GENERATIONS)
+        
+        tracker = ParallelGenerationTracker(evaluator, p)
+
+        winner = p.run(tracker.evaluate, GENERATIONS)
 
     print('\nBest genome:\n{!s}'.format(winner))
 
     save_net(winner, f"{run_string}.pkl")
 
     create_run_net(winner, config)
-
+    sys.stdout =  sys.__stdout__
     log_file.close()

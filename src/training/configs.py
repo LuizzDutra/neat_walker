@@ -10,9 +10,15 @@ CONFIG = 'config-neat-mod'
 AVERAGED = True
 DYN_THRESHOLD = True
 N_SPECIES = 20
-ADJUST_RATE = 0.05
+ADJUST_RATE = 0.02
 MIN_THRES = 1.5
 MAX_THRES = 3.0
+
+class Penalties:
+    knee_coef = 0.4
+    splay_coef = 0.2
+    tilt_coef = 0.2
+    min_gen = 50
 
 def get_config():
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
