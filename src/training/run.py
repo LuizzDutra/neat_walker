@@ -8,7 +8,9 @@ from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_T
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 from src.dynamic.threshold import DynamicThresholdReporter
+from src.logging.logger import Tee
 import numpy as np
+import sys
 
 random.seed(RAND_SEED)
 np.random.seed(RAND_SEED)
@@ -49,8 +51,7 @@ def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         genome.fitness = eval_genome(genome, config)
 
-if __name__ == "__main__":
-    
+if __name__ == "__main__": 
 
     # Load configuration
     config = get_config()
@@ -59,9 +60,15 @@ if __name__ == "__main__":
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
 
+    start_time = int(time())
     pop_size = len(p.population)
-    print(f"Population size: {pop_size}")
+    run_string = "best_winner_{pop_size}_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}"
     
+    log_file = open(run_string+".log", "w")
+    sys.stdout = Tee(sys.stdout, log_file)
+    sys.stderr = Tee(sys.stderr, log_file)
+
+
     if DYN_THRESHOLD:
         p.add_reporter(
                 DynamicThresholdReporter(N_SPECIES, 
@@ -70,18 +77,14 @@ if __name__ == "__main__":
                                          MAX_THRES)
                 )
     
-    
-    start_time = int(time())
-
     #Checkpoint  
     p.add_reporter(neat.Checkpointer(
         generation_interval=CHECKPOINT,
         time_interval_seconds=None,
         filename_prefix=f'{pop_size}-{start_time}-checkpoint-'
     ))
-        
 
-
+    print(f"Population size: {pop_size}")
     with neat.ParallelEvaluator(
             multiprocessing.cpu_count(), 
             eval_genome, 
@@ -92,6 +95,8 @@ if __name__ == "__main__":
 
     print('\nBest genome:\n{!s}'.format(winner))
 
-    save_net(winner, f"best_winner_{pop_size}_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}.pkl")
+    save_net(winner, f"{run_string}.pkl")
 
     create_run_net(winner, config)
+
+    log_file.close()
