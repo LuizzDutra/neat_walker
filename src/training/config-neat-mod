@@ -3,7 +3,7 @@ fitness_criterion     = max
 fitness_threshold     = 400.0
 pop_size              = 1000
 reset_on_extinction   = False
-no_fitness_termination = False
+no_fitness_termination = True
 
 [DefaultGenome]
 activation_default      = tanh
@@ -19,14 +19,14 @@ bias_init_stdev         = 1.0
 bias_init_type          = gaussian
 bias_max_value          = 10.0
 bias_min_value          = -10.0
-bias_mutate_power       = 0.2
+bias_mutate_power       = 0.5
 bias_mutate_rate        = 0.7
 bias_replace_rate       = 0.1
 
 compatibility_disjoint_coefficient = 1.0
 compatibility_weight_coefficient   = 0.5
 
-conn_add_prob           = 0.3
+conn_add_prob           = 0.15
 conn_delete_prob        = 0.15
 
 enabled_default         = True
@@ -34,13 +34,11 @@ enabled_mutate_rate     = 0.01
 enabled_rate_to_true_add  = 0.0
 enabled_rate_to_false_add = 0.0
 
-feed_forward            = False
-initial_connection      = partial 0.2
+feed_forward            = True
+initial_connection      = partial 0.5
 
-#0.15
 node_add_prob           = 0.15
-#0.05
-node_delete_prob        = 0.03
+node_delete_prob        = 0.08
 
 num_hidden              = 0
 num_inputs              = 24
@@ -56,13 +54,13 @@ response_mutate_rate    = 0.0
 response_replace_rate   = 0.0
 
 weight_init_mean        = 0.0
-weight_init_stdev       = 1.0
+weight_init_stdev       = 0.5
 weight_init_type        = gaussian
-weight_max_value        = 10.0
-weight_min_value        = -10.0
-weight_mutate_power     = 0.65
+weight_max_value        = 30.0
+weight_min_value        = -30.0
+weight_mutate_power     = 0.5
 weight_mutate_rate      = 0.8
-weight_replace_rate     = 0.1
+weight_replace_rate     = 0.05
 
 single_structural_mutation = false
 structural_mutation_surer  = default
@@ -72,10 +70,10 @@ compatibility_threshold = 2.4
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation       = 20
-species_elitism      = 1
+max_stagnation       = 25
+species_elitism      = 2
 
 [DefaultReproduction]
 elitism            = 2
-survival_threshold = 0.15
-min_species_size   = 2
+survival_threshold = 0.20
+min_species_size   = 4

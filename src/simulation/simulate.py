@@ -1,5 +1,5 @@
 import gymnasium as gym
-from neat.nn import RecurrentNetwork
+from neat.nn import FeedForwardNetwork 
 from src.simulation.model import SimResult
 
 
@@ -35,12 +35,12 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
         knee_1_pen = (
                 max(0.0, -knee_1_angle + knee_penalty_thres) * 
                 leg_1_contact *
-                int((hip_1_angle - abs(hull_angle)) < 0.3)
+                int(hip_1_angle  < 0.3)
                 )
         knee_2_pen = (
                 max(0.0, -knee_2_angle + knee_penalty_thres) * 
                 leg_2_contact *
-                int((hip_2_angle - abs(hull_angle)) < 0.3)
+                int(hip_2_angle < 0.3)
                 )
         knee_penalty = (knee_1_pen + knee_2_pen)
         result.total_knee += knee_penalty
@@ -88,6 +88,6 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
 
 
 def create_run_net(net, config):
-    n_net = RecurrentNetwork.create(net, config)
-    run_episode(n_net, render=True, seed=101)
+    n_net = FeedForwardNetwork.create(net, config)
+    run_episode(n_net, render=True, seed=1692)
 

@@ -1,5 +1,5 @@
 import neat
-from neat.nn import RecurrentNetwork
+from neat.nn import RecurrentNetwork, FeedForwardNetwork
 from time import time
 import multiprocessing
 import random
@@ -42,19 +42,19 @@ def calc_fitness(result: SimResult, gen):
     return fitness
 
 def eval_genome(genome, config):
-    net = RecurrentNetwork.create(genome, config)
+    net = FeedForwardNetwork.create(genome, config)
     gen = config.current_generation
     if AVERAGED:
         fitness_list = []
         for seed in SEEDS:
-            net.reset()
+            #net.reset()
             fitness_list.append(
                     calc_fitness(run_episode(net, seed=seed), gen)
                     )
 
         fitness = sum(fitness_list) / len(fitness_list)
     else:
-        net.reset()
+        #net.reset()
         fitness = calc_fitness(run_episode(net), gen)
 
     return float(fitness)
@@ -88,9 +88,6 @@ if __name__ == "__main__":
                     ADJUST_RATE, 
                     MIN_THRES, 
                     MAX_THRES,
-                    configs.THRES_TRANSITION_START,
-                    configs.THRES_TRANSITION_END,
-                    configs.N_SPECIES_END
                     )
                 )
    
