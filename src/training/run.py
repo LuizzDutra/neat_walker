@@ -12,6 +12,7 @@ from src.dynamic.generation import ParallelGenerationTracker
 from src.logging.logger import Tee
 import numpy as np
 import sys
+import os
 
 random.seed(RAND_SEED)
 np.random.seed(RAND_SEED)
@@ -74,7 +75,8 @@ if __name__ == "__main__":
     pop_size = len(p.population)
     run_string = f"best_winner_{pop_size}_{GENERATIONS}_{SEEDS[0]}_{AVERAGED}_{start_time}"
     
-    log_file = open(run_string+".log", "w")
+    os.makedirs('logs', exist_ok=True)
+    log_file = open('logs' + os.sep + run_string+".log", "w")
     sys.stdout = Tee(sys.stdout, log_file)
 
 
@@ -85,12 +87,13 @@ if __name__ == "__main__":
                                          MIN_THRES, 
                                          MAX_THRES)
                 )
-    
+   
+    os.makedirs('checkpoints', exist_ok=True)
     #Checkpoint  
     p.add_reporter(neat.Checkpointer(
         generation_interval=CHECKPOINT,
         time_interval_seconds=None,
-        filename_prefix=f'{pop_size}-{start_time}-checkpoint-'
+        filename_prefix='checkpoints'+ os.sep + f'{pop_size}-{start_time}-checkpoint-'
     ))
 
     print(f"Population size: {pop_size}")
