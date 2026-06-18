@@ -5,6 +5,7 @@ import multiprocessing
 import random
 from src.simulation.simulate import run_episode, create_run_net
 from src.training.configs import SEEDS, GENERATIONS, get_config, AVERAGED, DYN_THRESHOLD, N_SPECIES, MAX_THRES, MIN_THRES, ADJUST_RATE, CHECKPOINT, RAND_SEED, Penalties
+import src.training.configs as configs
 from src.results.manager import save_net
 from src.simulation.model import SimResult
 from src.dynamic.threshold import DynamicThresholdReporter
@@ -82,10 +83,15 @@ if __name__ == "__main__":
 
     if DYN_THRESHOLD:
         p.add_reporter(
-                DynamicThresholdReporter(N_SPECIES, 
-                                         ADJUST_RATE, 
-                                         MIN_THRES, 
-                                         MAX_THRES)
+                DynamicThresholdReporter(
+                    N_SPECIES, 
+                    ADJUST_RATE, 
+                    MIN_THRES, 
+                    MAX_THRES,
+                    configs.THRES_TRANSITION_START,
+                    configs.THRES_TRANSITION_END,
+                    configs.N_SPECIES_END
+                    )
                 )
    
     os.makedirs('checkpoints', exist_ok=True)

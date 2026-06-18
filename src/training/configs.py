@@ -3,16 +3,21 @@ from pathlib import Path
 
 RAND_SEED = 81
 SEEDS = [1692, 214, 67]
-GENERATIONS = 200
+GENERATIONS = 100
 CHECKPOINT = 50
 CONFIG = 'config-neat-mod'
 
 AVERAGED = True
 DYN_THRESHOLD = True
 N_SPECIES = 20
+N_SPECIES_END = 4
 ADJUST_RATE = 0.02
 MIN_THRES = 2.0
 MAX_THRES = 3.0
+
+THRES_TRANSITION_START = 40
+THRES_TRANSITION_END = 60
+
 
 class Penalties:
     knee_coef = 0.2
