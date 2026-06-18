@@ -11,11 +11,11 @@ AVERAGED = True
 DYN_THRESHOLD = True
 N_SPECIES = 20
 ADJUST_RATE = 0.02
-MIN_THRES = 1.5
+MIN_THRES = 2.0
 MAX_THRES = 3.0
 
 class Penalties:
-    knee_coef = 0.4
+    knee_coef = 0.2
     splay_coef = 0.2
     tilt_coef = 0.2
     min_gen = 50

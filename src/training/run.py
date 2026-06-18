@@ -25,17 +25,17 @@ def calc_fitness(result: SimResult, gen):
     penalties += result.total_tilt * Penalties.tilt_coef
     
 
-    fitness -= penalties * min(2.0, gen/Penalties.min_gen)
+    fitness -= penalties * min(1.0, gen/Penalties.min_gen)
     
 
     if result.has_fallen:
-        early_fall_factor = max(0.5, 1.0 - result.steps / 1600.0)
-        fitness -= 80.0 * early_fall_factor
-        #fitness -= 30
+        #early_fall_factor = max(0.5, 1.0 - result.steps / 1600.0)
+        #fitness -= 80.0 * early_fall_factor
+        fitness -= 80
 
     if result.has_stopped:
-        fitness -= 100.0 * max(0.5, 1.0 - result.steps / 1600.0)
-        #fitness -= 60
+        #fitness -= 100.0 * max(0.5, 1.0 - result.steps / 1600.0)
+        fitness -= 100
 
     return fitness
 

@@ -14,7 +14,7 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
     result = SimResult()
     
     steps_stuck = 0
-    knee_penalty_thres = 0.6 # < 0 = folded; > 0 streched-ish
+    knee_penalty_thres = 0.35 # < 0 = folded; > 0 streched-ish
 
     while not episode_over:
 
@@ -35,12 +35,12 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
         knee_1_pen = (
                 max(0.0, -knee_1_angle + knee_penalty_thres) * 
                 leg_1_contact *
-                int(hip_1_angle < -0.3)
+                int((hip_1_angle - abs(hull_angle)) < 0.3)
                 )
         knee_2_pen = (
                 max(0.0, -knee_2_angle + knee_penalty_thres) * 
                 leg_2_contact *
-                int(hip_2_angle < -0.3)
+                int((hip_2_angle - abs(hull_angle)) < 0.3)
                 )
         knee_penalty = (knee_1_pen + knee_2_pen)
         result.total_knee += knee_penalty
@@ -89,5 +89,5 @@ def run_episode(net, render=False, seed: int | None = None) -> SimResult:
 
 def create_run_net(net, config):
     n_net = RecurrentNetwork.create(net, config)
-    run_episode(n_net, render=True)
+    run_episode(n_net, render=True, seed=101)
 
