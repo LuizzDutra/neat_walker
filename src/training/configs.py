@@ -5,7 +5,7 @@ from src.dynamic.weight_decay import WeightDecaySchedule, DecayMode
 
 RAND_SEED = 81
 SEEDS = [1692, 214, 67]
-GENERATIONS = 600
+GENERATIONS = 300
 CHECKPOINT = 50
 CONFIG = 'config-neat-mod'
 
@@ -13,7 +13,7 @@ AVERAGED = True
 DYN = True
 N_SPECIES = 20
 ADJUST_RATE = 0.03
-MIN_THRES = 1.8
+MIN_THRES = 1.0
 MAX_THRES = 4.0
 
 USE_SPECIES_SCHEDULE = True
