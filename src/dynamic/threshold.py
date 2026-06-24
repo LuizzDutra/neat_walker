@@ -28,24 +28,21 @@ class DynamicReporter(BaseReporter):
     # ------------------------------------------------------------------
     def end_generation(self, config, population, species_set):
         gen = self._generation
-
-        if self.species_schedule is not None:
-            target = self.species_schedule(gen)
-        else:
-            target = self.base_target
-
+        target = None
         current_species_count = len(species_set.species)
         current_threshold = config.species_set_config.compatibility_threshold
+        
+        if self.species_schedule is not None:
+            target = self.species_schedule(gen)
+            if current_species_count > target:
+                current_threshold += self.adjust_rate
+            elif current_species_count < target:
+                current_threshold -= self.adjust_rate
 
-        if current_species_count > target:
-            current_threshold += self.adjust_rate
-        elif current_species_count < target:
-            current_threshold -= self.adjust_rate
-
-        current_threshold = max(
-            self.min_thresh, min(self.max_thresh, current_threshold)
-        )
-        config.species_set_config.compatibility_threshold = current_threshold
+            current_threshold = max(
+                self.min_thresh, min(self.max_thresh, current_threshold)
+            )
+            config.species_set_config.compatibility_threshold = current_threshold
 
         sigma_str = ""
         if self.weight_decay is not None:
@@ -53,7 +50,7 @@ class DynamicReporter(BaseReporter):
             sigma_str = f" | Weight σ: {sigma:.4f}"
 
         print(
-            f"Gen {gen:>4} | Species: {current_species_count:>3} (target {target:>3})"
+            f"Gen {gen:>4} | Species: {current_species_count:>3} (target {target})"
             f" | Threshold: {current_threshold:.2f}"
             f"{sigma_str}"
         )
