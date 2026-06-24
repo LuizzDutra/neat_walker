@@ -89,7 +89,7 @@ if __name__ == "__main__":
     )
 
     os.makedirs('logs', exist_ok=True)
-    log_file = open('logs' + os.sep + run_string + ".log", "w")
+    log_file = open('logs' + os.sep + run_string + ".log", "w", encoding="utf-8")
     sys.stdout = Tee(sys.stdout, log_file)
 
     print(f"Condition: {condition_label}")
